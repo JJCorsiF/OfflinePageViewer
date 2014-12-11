@@ -66,6 +66,7 @@ public class Downloader {
             for(PaginaHTML webPage : filaDownloads){
                 webPage.diretorioRoot = paginaPrincipal.diretorioRoot;
                 try {
+                    System.out.println("Conectando-se a " + webPage.URL + "...");
                     URL link = new URL(webPage.URL);
                     URLConnection conexaoURL = link.openConnection();
                     InputStream streamEntrada = conexaoURL.getInputStream();
@@ -103,6 +104,8 @@ public class Downloader {
                         }
 
                         String encontrado = conteudoPagina.substring(menorInicio, menorFim);
+                        
+                        System.out.println("Encontrei o link " + encontrado + " nesta página!");
 
                         String copia = encontrado;
 
@@ -185,9 +188,11 @@ public class Downloader {
                                 if(copia.toLowerCase().endsWith(formato.toString())){
                                     //encontrado o formato de pagina web
                                     //webPage.getLinks().add(novaPagina);
-                                    filaDownloads.add((PaginaHTML) arquivo);
-                                    encontrouFormato = true;
-                                    break;
+                                    if(arquivo instanceof PaginaHTML){
+                                        filaDownloads.add((PaginaHTML) arquivo);
+                                        encontrouFormato = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -238,9 +243,11 @@ public class Downloader {
         }
         
         for(PaginaHTML pagina : filaDownloads){
+            System.out.println("Baixando a pagina " + pagina.URL + "...");
             pagina.download();
             for(Arquivo arquivo : pagina.getLinks()){
                 try {
+                    System.out.println("Baixando o arquivo " + arquivo.URL + "...");
                     arquivo.download();
                 } catch (IOException ex) {
                     Logger.getLogger(Downloader.class.getName()).log(Level.SEVERE, null, ex);
