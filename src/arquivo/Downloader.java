@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -17,6 +16,7 @@ import enums.FormatoCodigoFonte;
 import enums.FormatoImagem;
 import enums.FormatoPaginaWeb;
 import enums.FormatoVideo;
+import java.awt.Component;
 
 /**
  *
@@ -24,9 +24,9 @@ import enums.FormatoVideo;
  */
 public class Downloader {
     
-    public static Queue<PaginaHTML> filaDownloads;
+    public static ArrayList<PaginaHTML> filaDownloads = new ArrayList<>();
     
-    public static ArrayList<String> dominios;
+    public static ArrayList<String> dominios = new ArrayList<>();
     
     public static void main(String[] args) {
         //TODO Code:
@@ -45,7 +45,7 @@ public class Downloader {
         JFileChooser escolhedorDeArquivo = new JFileChooser();
         escolhedorDeArquivo.setDialogTitle("Escolha o diretório onde salvará os arquivos:");
         escolhedorDeArquivo.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        escolhedorDeArquivo.showSaveDialog(null);//new Component(){});
+        escolhedorDeArquivo.showSaveDialog(new Component(){});
         
         //testa se o link fornecido pelo usuário usa o protocolo HTTP explicitamente
         if (!(diretorioServidor.split(":")[0].startsWith("http") || diretorioServidor.split(":")[0].startsWith("https"))){
@@ -63,8 +63,12 @@ public class Downloader {
         filaDownloads.add(paginaPrincipal);
         
         for(String dominio : dominios){
+            ArrayList<String> encontrados = new ArrayList<>();
+            encontrados.add(diretorioServidor);
             for(PaginaHTML webPage : filaDownloads){
                 webPage.diretorioRoot = paginaPrincipal.diretorioRoot;
+                System.out.println("Baixando a pagina " + webPage.URL + "...");
+                webPage.download();
                 try {
                     System.out.println("Conectando-se a " + webPage.URL + "...");
                     URL link = new URL(webPage.URL);
@@ -80,33 +84,39 @@ public class Downloader {
                     }
                     String conteudoPagina = criadorDeStrings.toString();
 
-                    System.out.println("*** INÍCIO DA PÁGINA ***");
+                    System.out.println("\n*** INÍCIO DA PÁGINA ***");
                     System.out.println(conteudoPagina);
-                    System.out.println("*** FIM DA PÁGINA ***");
+                    System.out.println("*** FIM DA PÁGINA ***\n");
 
-                    int indexBusca = 0, inicio1, inicio2, menorInicio, fim1, fim2, menorFim;
+                    int indexBusca = 0, inicio1, inicio2, menorInicio, fim1, fim2, menorFim, anterior = -1;
+                    
+                    String condicao = conteudoPagina, encontrado = "...";
 
-                    while (indexBusca >= 0){
+                    while (encontrado.length() > 0 && anterior < indexBusca && indexBusca < condicao.length() && indexBusca >= 0){ //PROBLEMA DE LOOP INFINITO!!
+                        System.out.println("Encontrado: " + encontrado);
+                        System.out.println("Anterior: " + anterior);
+                        System.out.println("IndexBusca: " + indexBusca);
+                        
                         inicio1 = conteudoPagina.indexOf("src=", indexBusca) + 5;
                         inicio2 = conteudoPagina.indexOf("href=", indexBusca) + 6;
                         menorInicio = inicio1 < inicio2 ? inicio1 : inicio2;
-
-                        if(menorInicio < 6){
-                            break;
-                        }
-
+                        
                         fim1 = conteudoPagina.indexOf("\'", menorInicio);
                         fim2 = conteudoPagina.indexOf("\"", menorInicio);
                         menorFim = fim1 < fim2 ? fim1 : fim2;
-
-                        if(menorFim < 0){
-                            break;
+                        
+                        encontrado = conteudoPagina.substring(menorInicio, menorFim);
+                        
+                        if(encontrados.contains(encontrado)){
+                            indexBusca += encontrado.length();
+                            continue;
                         }
-
-                        String encontrado = conteudoPagina.substring(menorInicio, menorFim);
+                        else{
+                            encontrados.add(encontrado);
+                        }
                         
                         System.out.println("Encontrei o link " + encontrado + " nesta página!");
-
+                        
                         String copia = encontrado;
 
                         String paginaRoot;
@@ -213,6 +223,8 @@ public class Downloader {
                                 }
                                 else{
                                     //inclui apenas o link na fila
+                                    //POSSIVEL ERRO AQUI!!!
+                                    System.exit(-1);
                                     webPage.getLinks().add(new PaginaHTML(paginaRoot));
                                 }
                             }
@@ -231,8 +243,15 @@ public class Downloader {
                         conteudoPagina = conteudoPagina.substring(0, menorInicio) + arquivo.diretorioRoot + arquivo.diretorioRelativo + conteudoPagina.substring(menorFim);
 
                         webPage.setConteudo(conteudoPagina);
+                        
+                        anterior = indexBusca;
 
-                        indexBusca = menorFim;
+                        indexBusca += encontrado.length();
+                    }
+                    
+                    for(Arquivo arquivo : webPage.getLinks()){
+                        System.out.println("Baixando o arquivo " + arquivo.URL + "...");
+                        arquivo.download();
                     }
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(Downloader.class.getName()).log(Level.SEVERE, null, ex);
@@ -240,20 +259,6 @@ public class Downloader {
                     Logger.getLogger(Downloader.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }
-        
-        for(PaginaHTML pagina : filaDownloads){
-            System.out.println("Baixando a pagina " + pagina.URL + "...");
-            pagina.download();
-            for(Arquivo arquivo : pagina.getLinks()){
-                try {
-                    System.out.println("Baixando o arquivo " + arquivo.URL + "...");
-                    arquivo.download();
-                } catch (IOException ex) {
-                    Logger.getLogger(Downloader.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            filaDownloads.remove(pagina);
         }
     }
 }
