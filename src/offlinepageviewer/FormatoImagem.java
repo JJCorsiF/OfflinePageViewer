@@ -15,7 +15,7 @@ public enum FormatoImagem {
     raw,
     svg,
     svgz,
-    WebP;
+    webp;
         
     FormatoImagem(){
         

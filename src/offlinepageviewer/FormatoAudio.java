@@ -14,8 +14,8 @@ public enum FormatoAudio {
     ogg,
     wma,
     aiff,
-    DTS,
-    AC3;
+    dts,
+    ac3;
     
     FormatoAudio(){
         

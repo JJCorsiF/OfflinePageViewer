@@ -9,18 +9,27 @@ import java.util.ArrayList;
 public class PaginaHTML extends Arquivo {//implements Downloadable {
     private ArrayList<String> tagsHTML;
     private String conteudo;
+    private ArrayList<Arquivo> links;
     
-    public PaginaHTML(String link){
-        this.URL = link;
+    public PaginaHTML(String url){
+        this.URL = url;
     }
     
-    public PaginaHTML(String conteudo, String link){
+    public PaginaHTML(String conteudo, String url){
         this.conteudo = conteudo;
-        this.URL = link;
+        this.URL = url;
     }
     
     public String getConteudo(){
         return this.conteudo;
+    }
+    
+    public void setConteudo(String conteudo){
+        this.conteudo = conteudo;
+    }
+    
+    public ArrayList<Arquivo> getLinks(){
+        return this.links;
     }
 
     @Override

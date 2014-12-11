@@ -42,8 +42,8 @@ public class Downloader {
                 // extrai o nome do arquivo do cabeçalho
                 int index = disposition.indexOf("filename=");
                 if (index > 0) {
-                        nomeArquivo = disposition.substring(index + 10,
-                                        disposition.length() - 1);
+                    nomeArquivo = disposition.substring(index + 10,
+                                    disposition.length() - 1);
                 }
             } else {
                 // extrai o nome do arquivo da URL
@@ -66,7 +66,7 @@ public class Downloader {
             int bytesLidos = -1;
             byte[] buffer = new byte[BUFFER_SIZE];
             while ((bytesLidos = streamEntrada.read(buffer)) != -1) {
-                    streamSaida.write(buffer, 0, bytesLidos);
+                streamSaida.write(buffer, 0, bytesLidos);
             }
 
             streamSaida.close();
