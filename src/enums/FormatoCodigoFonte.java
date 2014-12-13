@@ -5,11 +5,18 @@ package enums;
  * @author JOTA
  */
 public enum FormatoCodigoFonte {
-    xml,
-    css,
-    js;
+    xml("xml"),
+    css("css"),
+    js("js");
     
-    FormatoCodigoFonte(){
-        
+    private String descricao;
+    
+    FormatoCodigoFonte(String descricao){
+        this.descricao = descricao;
+    }
+    
+    @Override
+    public String toString(){
+        return this.descricao + "\n";
     }
 }

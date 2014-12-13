@@ -5,12 +5,19 @@ package enums;
  * @author JOTA
  */
 public enum FormatoPaginaWeb {
-    htm,
-    html,
-    php,
-    asp;
+    htm("htm"),
+    html("html"),
+    php("php"),
+    asp("asp");
     
-    FormatoPaginaWeb(){
-        
+    private String descricao;
+    
+    FormatoPaginaWeb(String descricao){
+        this.descricao = descricao;
+    }
+    
+    @Override
+    public String toString(){
+        return this.descricao + "\n";
     }
 }
