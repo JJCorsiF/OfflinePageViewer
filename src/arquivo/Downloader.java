@@ -1,5 +1,11 @@
 package arquivo;
 
+import enums.FormatoAudio;
+import enums.FormatoCodigoFonte;
+import enums.FormatoImagem;
+import enums.FormatoPaginaWeb;
+import enums.FormatoVideo;
+import java.awt.Component;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,12 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import enums.FormatoAudio;
-import enums.FormatoCodigoFonte;
-import enums.FormatoImagem;
-import enums.FormatoPaginaWeb;
-import enums.FormatoVideo;
-import java.awt.Component;
 
 /**
  *
@@ -27,6 +27,14 @@ public class Downloader {
     public static ArrayList<PaginaHTML> filaDownloads = new ArrayList<>();
     
     public static ArrayList<String> dominios = new ArrayList<>();
+    
+    public static ArrayList<PaginaHTML> getFilaDownloads(){
+        return filaDownloads;
+    }
+    
+    public static ArrayList<String> getDominios(){
+        return dominios;
+    }
     
     public static void main(String[] args) {
         //TODO Code:
@@ -97,12 +105,17 @@ public class Downloader {
                         System.out.println("Anterior: " + anterior);
                         System.out.println("IndexBusca: " + indexBusca);
                         
-                        inicio1 = conteudoPagina.indexOf("src=", indexBusca) + 5;
-                        inicio2 = conteudoPagina.indexOf("href=", indexBusca) + 6;
-                        menorInicio = inicio1 < inicio2 ? inicio1 : inicio2;
+                        inicio1 = conteudoPagina.indexOf("src=", indexBusca);
+                        inicio2 = conteudoPagina.indexOf("href=", indexBusca);
                         
-                        fim1 = conteudoPagina.indexOf("\'", menorInicio);
-                        fim2 = conteudoPagina.indexOf("\"", menorInicio);
+                        if(inicio1 < 0 && inicio2 < 0){
+                            //chegou ao fim do arquivo
+                            break;
+                        }
+                        menorInicio = inicio1 < inicio2 + 1 ? inicio1 : inicio2 + 1;
+                        
+                        fim1 = conteudoPagina.indexOf("\'", menorInicio + 5);
+                        fim2 = conteudoPagina.indexOf("\"", menorInicio + 5);
                         menorFim = fim1 < fim2 ? fim1 : fim2;
                         
                         encontrado = conteudoPagina.substring(menorInicio, menorFim);
@@ -119,7 +132,7 @@ public class Downloader {
                         
                         String copia = encontrado;
 
-                        String paginaRoot;
+                        String paginaRoot = "";
 
                         if(copia.contains("?")){
                             //se tem codigo GET adicionado na url
@@ -137,13 +150,14 @@ public class Downloader {
                         
                         boolean encontrouFormato = false;
                         Arquivo arquivo = new PaginaHTML();
-                        while(true){
+                        while(!encontrouFormato){
                             for(FormatoAudio formato : FormatoAudio.values()){
                                 if(copia.toLowerCase().endsWith(formato.toString())){
                                     //encontrado o formato de audio
                                     arquivo = new Audio();
                                     webPage.getLinks().add(arquivo);
                                     encontrouFormato = true;
+                                    arquivo.formato = formato.toString();
                                     break;
                                 }
                             }
@@ -158,6 +172,7 @@ public class Downloader {
                                     arquivo = new CodigoFonte();
                                     webPage.getLinks().add(arquivo);
                                     encontrouFormato = true;
+                                    arquivo.formato = formato.toString();
                                     break;
                                 }
                             }
@@ -172,6 +187,7 @@ public class Downloader {
                                     arquivo = new Imagem();
                                     webPage.getLinks().add(arquivo);
                                     encontrouFormato = true;
+                                    arquivo.formato = formato.toString();
                                     break;
                                 }
                             }
@@ -186,6 +202,7 @@ public class Downloader {
                                     arquivo = new Video();
                                     webPage.getLinks().add(arquivo);
                                     encontrouFormato = true;
+                                    arquivo.formato = formato.toString();
                                     break;
                                 }
                             }
@@ -198,21 +215,29 @@ public class Downloader {
                                 if(copia.toLowerCase().endsWith(formato.toString())){
                                     //encontrado o formato de pagina web
                                     //webPage.getLinks().add(novaPagina);
-                                    if(arquivo instanceof PaginaHTML){
-                                        filaDownloads.add((PaginaHTML) arquivo);
-                                        encontrouFormato = true;
-                                        break;
-                                    }
+                                    filaDownloads.add((PaginaHTML) arquivo);
+                                    encontrouFormato = true;
+                                    arquivo.formato = formato.toString();
+                                    break;
                                 }
                             }
+                            
+                            if(arquivo instanceof PaginaHTML){
+                                filaDownloads.add((PaginaHTML) arquivo);
+                                encontrouFormato = true;
+                            }
+                            break;
                         }
 
                         if(copia.toLowerCase().startsWith("http://") || copia.toLowerCase().startsWith("https://")){
                             //é um link http
+                            System.out.println(copia.indexOf("://"));
                             copia = copia.substring(copia.indexOf("://") + 3);
-                            arquivo.diretorioRelativo = copia.substring(copia.indexOf("/") + 1);
-
-                            paginaRoot = copia.substring(0, copia.indexOf("/"));
+                            if(copia.contains("/")){
+                                arquivo.diretorioRelativo = copia.substring(copia.indexOf("/") + 1);
+                                paginaRoot = copia.substring(0, copia.indexOf("/"));
+                            }
+                            
                             if(!paginaRoot.equalsIgnoreCase(diretorioServidor.substring(diretorioServidor.indexOf("://") + 3))){
                                 //é um link de outro dominio
                                 String resposta = JOptionPane.showInputDialog("Deseja incluir o dominio " + paginaRoot + " na fila de downloads? (Padrão: Não)\n0-Sim\n1-Não");

@@ -1,5 +1,6 @@
 package arquivo;
 
+import enums.FormatoPaginaWeb;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,32 +16,24 @@ import java.util.logging.Logger;
 public class PaginaHTML extends Arquivo {
     private String conteudo;
     private final ArrayList<Arquivo> links = new ArrayList<>();
+    private FormatoPaginaWeb extensao;
     
     public PaginaHTML(){
-        diretorioRoot = "";
-        tamanhoArquivo = 0;
-        formato = "";
-        URL = "";
-        diretorioRelativo = "";
+        super();
         conteudo = "";
+        extensao = FormatoPaginaWeb.html;
     }
     
     public PaginaHTML(String url){
-        diretorioRoot = "";
-        tamanhoArquivo = 0;
-        formato = "";
-        diretorioRelativo = "";
-        URL = url;
+        super(url);
         conteudo = "";
+        extensao = FormatoPaginaWeb.html;
     }
     
     public PaginaHTML(String conteudo, String url){
-        diretorioRoot = "";
-        tamanhoArquivo = 0;
-        formato = "";
-        diretorioRelativo = "";
+        super(url);
         this.conteudo = conteudo;
-        URL = url;
+        extensao = FormatoPaginaWeb.html;
     }
     
     public String getConteudo(){
@@ -72,5 +65,10 @@ public class PaginaHTML extends Arquivo {
         } catch (IOException ex) {
             Logger.getLogger(PaginaHTML.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    @Override
+    public String toString(){
+        return super.toString() + "Pagina com extensão: " + extensao + "\n";
     }
 }

@@ -14,7 +14,7 @@ import java.net.URL;
  *
  * @author JOTA
  */
-public abstract class Arquivo implements Downloadable {
+public class Arquivo implements Downloadable, Comparable<Arquivo> {
     private static final int BUFFER_SIZE = 4096;
     protected String diretorioRoot;
     protected int tamanhoArquivo;
@@ -22,6 +22,24 @@ public abstract class Arquivo implements Downloadable {
     protected String URL;
     protected String diretorioRelativo;
     protected String nomeArquivo;
+    
+    public Arquivo(){
+        diretorioRoot = "";
+        tamanhoArquivo = 0;
+        formato = "";
+        URL = "";
+        diretorioRelativo = "";
+        nomeArquivo = "";
+    }
+    
+    public Arquivo(String link){
+        diretorioRoot = "";
+        tamanhoArquivo = 0;
+        formato = "";
+        URL = link;
+        diretorioRelativo = "";
+        nomeArquivo = "";
+    }
     
     /**
      * Faz o download de um arquivo a partir de uma URL
@@ -83,5 +101,30 @@ public abstract class Arquivo implements Downloadable {
             System.out.println("Nenhum arquivo foi baixado. Código de resposta do Servidor HTTP: " + codigoRespostaHTTP);
         }
         ConexaoHTTP.disconnect();
+    }
+    
+    @Override
+    public boolean equals(Object outro){
+        return (diretorioRoot + diretorioRelativo).equals(((Arquivo) outro).diretorioRoot + ((Arquivo) outro).diretorioRelativo);
+    }
+
+    @Override
+    public int compareTo(Arquivo outro) {
+        if(URL.equals(outro.URL) && tamanhoArquivo == outro.tamanhoArquivo){
+            return 0;
+        }
+        else{
+            if(tamanhoArquivo > outro.tamanhoArquivo){
+                return 1;
+            }
+            else{
+                return -1;
+            }
+        }
+    }
+    
+    @Override
+    public String toString(){
+        return "Arquivo: " + nomeArquivo + "a ser baixado de " + URL + "\n";
     }
 }

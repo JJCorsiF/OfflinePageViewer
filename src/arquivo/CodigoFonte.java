@@ -1,26 +1,35 @@
 package arquivo;
 
+import enums.FormatoCodigoFonte;
+
 /**
  *
  * @author JOTA
  */
 public class CodigoFonte extends Arquivo {
     
+    private FormatoCodigoFonte extensao;
+    
     public CodigoFonte(){
-        diretorioRoot = "";
-        tamanhoArquivo = 0;
-        formato = "";
-        URL = "";
-        diretorioRelativo = "";
+        super();
+        extensao = FormatoCodigoFonte.css;
     }
     
     public CodigoFonte(String url){
-        diretorioRoot = "";
-        tamanhoArquivo = 0;
-        formato = "";
-        URL = url;
-        diretorioRelativo = "";
+        super(url);
+        extensao = FormatoCodigoFonte.css;
     }
+    
+    public CodigoFonte(FormatoCodigoFonte extensao){
+        super();
+        this.extensao = extensao;
+    }
+    
+    @Override
+    public String toString(){
+        return super.toString() + "Codigo do Tipo: " + extensao + "\n";
+    }
+    
     /*
     @Override
     public void download() {

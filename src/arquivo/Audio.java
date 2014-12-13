@@ -1,5 +1,6 @@
 package arquivo;
 
+import enums.FormatoAudio;
 import enums.FrequenciaAudio;
 import enums.MetodoAudio;
 import enums.QualidadeAudio;
@@ -14,26 +15,35 @@ public class Audio extends Arquivo implements Multimedia {
     private QualidadeAudio bitRate; //em KBPS
     private MetodoAudio metodo;
     private FrequenciaAudio taxaAmostragem; //em Heartz
+    private FormatoAudio extensao;
     
     public Audio(){
-        diretorioRoot = "";
-        tamanhoArquivo = 0;
-        formato = "";
-        URL = "";
-        diretorioRelativo = "";
+        super();
         duracao = 0;
         numeroCanais = 1;
         bitRate = QualidadeAudio._16kbps;
         metodo = MetodoAudio.CBR;
         taxaAmostragem = FrequenciaAudio._44100HZ;
+        extensao = FormatoAudio.mp3;
     }
     
     public Audio(String link){
-        diretorioRoot = "";
-        tamanhoArquivo = 0;
-        formato = "";
-        URL = "";
-        diretorioRelativo = "";
-        this.URL = link;
+        super(link);
+        duracao = 0;
+        numeroCanais = 1;
+        bitRate = QualidadeAudio._16kbps;
+        metodo = MetodoAudio.CBR;
+        taxaAmostragem = FrequenciaAudio._44100HZ;
+        extensao = FormatoAudio.mp3;
+    }
+    
+    public Audio(int duracao){
+        super();
+        this.duracao = duracao;
+    }
+    
+    @Override
+    public String toString(){
+        return super.toString() + "Audio do Tipo: " + extensao + "\n";
     }
 }
